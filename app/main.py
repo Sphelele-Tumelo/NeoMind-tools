@@ -1,15 +1,16 @@
-from fastapi import FastAPI, Query
+import os
 
+from fastapi import FastAPI, Query
 from app.providers.searxng import SearXNGProvider
+
 
 app = FastAPI(
     title="NeoMind Tools",
     version="0.1.0",
 )
 
-
 searxng = SearXNGProvider(
-    base_url="http://localhost:8080"
+    base_url=os.getenv("SEARXNG_URL", "http://localhost:8080")
 )
 
 
