@@ -1,7 +1,7 @@
 import os
 
-from fastapi import FastAPI, Query
-from app.providers.searxng import SearXNGProvider
+from fastapi import FastAPI, HTTPException, Query
+from app.providers.searxng import SearXNGProvider, SearXNGUnavailableError
 
 
 app = FastAPI(
@@ -27,10 +27,16 @@ async def search_web(
     q: str = Query(..., min_length=1),
     limit: int = Query(5, ge=1, le=10),
 ):
-    results = await searxng.search(
-        query=q,
-        limit=limit,
-    )
+    try:
+        results = await searxng.search(
+            query=q,
+            limit=limit,
+        )
+    except SearXNGUnavailableError:
+        raise HTTPException(
+            status_code=503,
+            detail="Web search is temporarily unavailable.",
+        )
 
     return {
         "query": q,
